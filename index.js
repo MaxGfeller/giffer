@@ -11,20 +11,15 @@ function Giffer(args) {
     this.adapters = []
     this.db = args.db // key encoding must be json
 
-    this.adapters.push(new AdapterTwitter({
-      'track': ['funny', 'hilarious', 'gif', 'cat']
-    }))
-
-    this.adapters.push(new AdapterReddit({
-      'subreddit': 'funny',
-      'sorting': 'hot'
-    }))
+    args.adapters.forEach(this.adapters.push.bind(this.adapters))
 
     this.outDir = args.outputDir
 }
 
 Giffer.prototype.start = function() {
     this.adapters.forEach(function(adapter) {
+        if(!adapter.start) return
+
         adapter.start()
         adapter.on('gif', this._handleGif.bind(this))
     }.bind(this))
@@ -33,6 +28,7 @@ Giffer.prototype.start = function() {
 Giffer.prototype.stop = function() {
     // stop adapters
     this.adapters.forEach(function(adapter) {
+        if(!adapter.stop) return
         adapter.stop()
     })
 }
