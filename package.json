@@ -30,6 +30,7 @@
   "dependencies": {
     "leveldown": "^0.10.2",
     "levelup": "^0.18.5",
+    "needle": "^0.7.2",
     "uuid": "^1.4.1"
   }
 }
