@@ -1,0 +1,35 @@
+{
+  "name": "giffer",
+  "version": "0.0.0",
+  "description": "GIF download bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run clear-test; tap tests/test-*.js",
+    "clear-test": "rm -rf tests/temp/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MaxGfeller/giffer.git"
+  },
+  "keywords": [
+    "gif",
+    "download",
+    "bot",
+    "giffer"
+  ],
+  "author": "Max Gfeller <max.gfeller@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MaxGfeller/giffer/issues"
+  },
+  "homepage": "https://github.com/MaxGfeller/giffer",
+  "devDependencies": {
+    "tap": "^0.4.11"
+  },
+  "dependencies": {
+    "giffer-adapter-9gag": "^1.0.0",
+    "leveldown": "^0.10.2",
+    "levelup": "^0.18.5",
+    "uuid": "^1.4.1"
+  }
+}
