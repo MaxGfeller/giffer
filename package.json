@@ -1,6 +1,6 @@
 {
   "name": "giffer",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "GIF download bot",
   "main": "index.js",
   "scripts": {
