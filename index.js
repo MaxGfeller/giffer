@@ -46,10 +46,10 @@ Giffer.prototype._handleGif = function(url) {
             if(err) throw err
         })
 
-        http.get(url, function(res) {
-            res.pipe(fs.createWriteStream(this.outDir + '/' + id + '.gif'))
-            this.emit('gif', this.outDir + '/' + id + '.gif')
-        }.bind(this))
+        needle.get(url).pipe(fs.createWriteStream(this.outDir + '/' + id + '.gif'))
+            .on('close', function() {
+                this.emit('gif', url)
+            }.bind(this))
     }.bind(this))
 }
 
