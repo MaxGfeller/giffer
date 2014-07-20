@@ -1,7 +1,4 @@
-var http = require('http')
-var Adapter9Gag = require('giffer-adapter-9gag')
-var AdapterTwitter = require('giffer-adapter-twitter')
-var AdapterReddit = require('giffer-adapter-reddit')
+var needle = require('needle')
 var levelup = require('levelup')
 var uuid = require('uuid')
 var fs = require('fs')
@@ -12,13 +9,7 @@ inherits(Giffer, EventEmitter)
 
 function Giffer(args) {
     this.adapters = []
-    this.db = levelup(args.db, {
-        valueEncoding: 'json'
-    })
-
-    this.adapters.push(new Adapter9Gag({
-        page: 'hot'
-    }))
+    this.db = args.db // key encoding must be json
 
     this.adapters.push(new AdapterTwitter({
       'track': ['funny', 'hilarious', 'gif', 'cat']
