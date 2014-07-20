@@ -1,5 +1,7 @@
 var http = require('http')
 var Adapter9Gag = require('giffer-adapter-9gag')
+var AdapterTwitter = require('giffer-adapter-twitter')
+var AdapterReddit = require('giffer-adapter-reddit')
 var levelup = require('levelup')
 var uuid = require('uuid')
 var fs = require('fs')
@@ -16,6 +18,15 @@ function Giffer(args) {
 
     this.adapters.push(new Adapter9Gag({
         page: 'hot'
+    }))
+
+    this.adapters.push(new AdapterTwitter({
+      'track': ['funny', 'hilarious', 'gif', 'cat']
+    }))
+
+    this.adapters.push(new AdapterReddit({
+      'subreddit': 'funny',
+      'sorting': 'hot'
     }))
 
     this.outDir = args.outputDir

@@ -28,6 +28,8 @@
   },
   "dependencies": {
     "giffer-adapter-9gag": "^1.0.0",
+    "giffer-adapter-twitter": "^0.1.0",
+    "giffer-adapter-reddit": "^0.1.0",
     "leveldown": "^0.10.2",
     "levelup": "^0.18.5",
     "uuid": "^1.4.1"
