@@ -8,12 +8,15 @@ var EventEmitter = require('events').EventEmitter
 inherits(Giffer, EventEmitter)
 
 function Giffer(args) {
+    this.timeToRestart = args.timeToRestart || 300000 // in ms
     this.adapters = []
     this.db = args.db // key encoding must be json
 
     args.adapters.forEach(this.adapters.push.bind(this.adapters))
 
     this.outDir = args.outputDir
+
+    this._timeouts = []
 }
 
 Giffer.prototype.start = function() {
@@ -22,6 +25,10 @@ Giffer.prototype.start = function() {
 
         adapter.start()
         adapter.on('gif', this._handleGif.bind(this))
+        adapter.on('stop', function() {
+            var timeout = setTimeout(adapter.start.bind(adapter), this.timeToRestart)
+            this._timeouts.push(timeout)
+        }.bind(this))
     }.bind(this))
 }
 
@@ -31,6 +38,10 @@ Giffer.prototype.stop = function() {
         if(!adapter.stop) return
         adapter.stop()
     })
+
+    this._timeouts.forEach(function(timeout) {
+        clearTimout(timeout)
+    })
 }
 
 Giffer.prototype._handleGif = function(url) {
@@ -39,7 +50,7 @@ Giffer.prototype._handleGif = function(url) {
 
         var id = uuid.v1()
         this.db.put(url, {
-            filename: id + 'gif',
+            filename: id + '.gif',
             dir: this.outDir,
             time: new Date().getTime()
         }, function(err) {
@@ -48,7 +59,7 @@ Giffer.prototype._handleGif = function(url) {
 
         needle.get(url).pipe(fs.createWriteStream(this.outDir + '/' + id + '.gif'))
             .on('close', function() {
-                this.emit('gif', url)
+                this.emit('gif', id + '.gif')
             }.bind(this))
     }.bind(this))
 }

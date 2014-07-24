@@ -18,7 +18,6 @@ test('Test basic functionality of giffer', function(t) {
 
     giffer.start()
     giffer.on('gif', function(url) {
-        console.log('url', url)
         giffer.stop()
         t.ok(url)
         t.end()
