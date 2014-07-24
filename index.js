@@ -1,9 +1,8 @@
-var needle = require('needle')
 var levelup = require('levelup')
 var uuid = require('uuid')
-var fs = require('fs')
 var inherits = require('util').inherits
 var EventEmitter = require('events').EventEmitter
+var downloader = require('./downloader')
 
 inherits(Giffer, EventEmitter)
 
@@ -57,10 +56,9 @@ Giffer.prototype._handleGif = function(url) {
             if(err) throw err
         })
 
-        needle.get(url).pipe(fs.createWriteStream(this.outDir + '/' + id + '.gif'))
-            .on('close', function() {
-                this.emit('gif', id + '.gif')
-            }.bind(this))
+        downloader.download(url, this.outDir + '/' + id + '.gif', function() {
+            this.emit('gif', id + '.gif')
+        }.bind(this))
     }.bind(this))
 }
 
