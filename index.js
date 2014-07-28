@@ -44,7 +44,7 @@ Giffer.prototype.stop = function() {
 }
 
 Giffer.prototype._handleGif = function(url) {
-    this.db.get('url', function(err, value) {
+    this.db.get(url, function(err, value) {
         if(!err && value) return
 
         var id = uuid.v1()
