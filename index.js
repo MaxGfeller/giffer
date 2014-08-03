@@ -70,8 +70,10 @@ Giffer.prototype._handleGif = function(url) {
             .stream(function (err, stdout, stderr) {
               var writeStream = fs.createWriteStream(this.thumbDir + '/' + id + '.gif');
               stdout.pipe(writeStream);
+              writeStream.on('finish', function() {
+                this.emit('gif', id + '.gif');
+              }.bind(this));
             }.bind(this));
-          this.emit('gif', id + '.gif');
         }.bind(this));
     }.bind(this));
 };
