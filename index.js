@@ -63,7 +63,6 @@ Giffer.prototype._handleGif = function(url) {
         });
 
         downloader.download(url, this.outDir + '/' + id + '.gif', function() {
-          console.log(this.thumbDir);
           var readStream = fs.createReadStream(this.outDir + '/' + id + '.gif');
           gm(readStream, id + '.gif[0]')
             .resize(this.thumbnailWidth, this.thumbnailHeight)
