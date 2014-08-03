@@ -14,6 +14,8 @@ test('Test basic functionality of giffer', function(t) {
         db: db,
         outputDir: __dirname + '/temp',
         thumbDir: 'thumbs',
+        thumbnailWidth: '200',
+        thumbnailHeight: '200',
         adapters: [testAdapter]
     });
 
