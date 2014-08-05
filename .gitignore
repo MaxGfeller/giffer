@@ -1,5 +1,6 @@
 node_modules/
 tests/temp/*.gif
+tests/temp/thumbs/*.gif
 tests/temp/db/
 tests/temp/.DS_Store
 config.js
