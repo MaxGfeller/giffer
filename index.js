@@ -1,5 +1,5 @@
-var levelup = require('levelup')
 var uuid = require('uuid')
+var sublevel = require('level-sublevel')
 var inherits = require('util').inherits
 var EventEmitter = require('events').EventEmitter
 var downloader = require('./downloader')
@@ -9,7 +9,20 @@ inherits(Giffer, EventEmitter)
 function Giffer(args) {
     this.timeToRestart = args.timeToRestart || 300000 // in ms
     this.adapters = []
-    this.db = args.db // key encoding must be json
+    var db = sublevel(args.db) // value encoding must be json
+
+    this.urlDb = db.sublevel('url')
+    var seqDb = this.seqDb = db.sublevel('seq')
+
+    // create time based index
+    this.urlDb.pre(function(ch, add) {
+        add({
+            key: '' + Date.now(),
+            value: ch.key,
+            type: 'put',
+            prefix: seqDb
+        })
+    })
 
     args.adapters.forEach(this.adapters.push.bind(this.adapters))
 
@@ -44,11 +57,11 @@ Giffer.prototype.stop = function() {
 }
 
 Giffer.prototype._handleGif = function(url) {
-    this.db.get(url, function(err, value) {
+    this.urlDb.get(url, function(err, value) {
         if(!err && value) return
 
         var id = uuid.v1()
-        this.db.put(url, {
+        this.urlDb.put(url, {
             filename: id + '.gif',
             dir: this.outDir,
             time: new Date().getTime()
