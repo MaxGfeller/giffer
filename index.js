@@ -5,7 +5,7 @@ var EventEmitter = require('events').EventEmitter;
 var downloader = require('./downloader');
 var fs = require('fs');
 var gm = require('gm');
-
+var imageMagick = gm.subClass({ imageMagick: true });
 
 inherits(Giffer, EventEmitter);
 
@@ -64,10 +64,13 @@ Giffer.prototype._handleGif = function(url) {
 
         downloader.download(url, this.outDir + '/' + id + '.gif', function() {
           var readStream = fs.createReadStream(this.outDir + '/' + id + '.gif');
-          gm(readStream, id + '.gif[0]')
+          imageMagick(readStream, id + '.gif[0]')
             .resize(this.thumbnailWidth, this.thumbnailHeight)
             .noProfile()
             .stream(function (err, stdout, stderr) {
+              if (err) {
+                console.log('Error: ' + err);
+              }
               var writeStream = fs.createWriteStream(this.thumbDir + '/' + id + '.gif');
               stdout.pipe(writeStream);
               writeStream.on('finish', function() {
