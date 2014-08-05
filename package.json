@@ -28,6 +28,7 @@
     "tap": "^0.4.11"
   },
   "dependencies": {
+    "level-sublevel": "^6.2.2",
     "leveldown": "^0.10.2",
     "levelup": "^0.18.5",
     "needle": "^0.7.2",
