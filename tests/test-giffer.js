@@ -8,12 +8,26 @@ var db = levelup('/whatever', {
 })
 
 test('Test basic functionality of giffer', function(t) {
+    t.plan(4)
     var testAdapter = new TestAdapter()
 
     var giffer = new Giffer({
         db: db,
         outputDir: __dirname + '/temp',
         adapters: [testAdapter]
+    })
+
+    giffer.pre('handleGif', function(next, url) {
+        t.ok(url)
+        next()
+    })
+    giffer.pre('download', function(next) {
+        t.ok(true)
+        next()
+    })
+    giffer.pre('emitGif', function(next) {
+        t.ok(true)
+        next()
     })
 
     giffer.start()
