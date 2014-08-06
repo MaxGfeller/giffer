@@ -1,28 +1,29 @@
-var uuid = require('uuid')
-var sublevel = require('level-sublevel')
-var inherits = require('util').inherits
-var EventEmitter = require('events').EventEmitter
-var downloader = require('./downloader')
-var hooks = require('hooks')
+var uuid = require('uuid');
+var sublevel = require('level-sublevel');
+var inherits = require('util').inherits;
+var EventEmitter = require('events').EventEmitter;
+var downloader = require('./downloader');
+var hooks = require('hooks');
+var thumbnailer = require('giffer-thumbnail');
 
-inherits(Giffer, EventEmitter)
+inherits(Giffer, EventEmitter);
 
 function Giffer(args) {
     // Make hooks possible
-    for(var k in hooks) {
-        this[k] = hooks[k]
+    for (var k in hooks) {
+        this[k] = hooks[k];
     }
 
-    this.hook('download', this.download)
-    this.hook('handleGif', this.handleGif)
-    this.hook('emitGif', this.emitGif)
+    this.hook('download', this.download);
+    this.hook('handleGif', this.handleGif);
+    this.hook('emitGif', this.emitGif);
 
-    this.timeToRestart = args.timeToRestart || 300000 // in ms
-    this.adapters = []
-    var db = sublevel(args.db) // value encoding must be json
+    this.timeToRestart = args.timeToRestart || 300000; // in ms
+    this.adapters = [];
+    var db = sublevel(args.db); // value encoding must be json
 
-    this.urlDb = db.sublevel('url')
-    var seqDb = this.seqDb = db.sublevel('seq')
+    this.urlDb = db.sublevel('url');
+    var seqDb = this.seqDb = db.sublevel('seq');
 
     // create time based index
     this.urlDb.pre(function(ch, add) {
@@ -31,66 +32,78 @@ function Giffer(args) {
             value: ch.key,
             type: 'put',
             prefix: seqDb
-        })
-    })
+        });
+    });
 
-    args.adapters.forEach(this.adapters.push.bind(this.adapters))
+    args.adapters.forEach(this.adapters.push.bind(this.adapters));
 
-    this.outDir = args.outputDir
+    this.outDir = args.outputDir;
+    this.thumbnailDir = args.thumbnailDir;
+    this.thumbnailWidth = args.thumbnailWidth;
+    this.thumbnailHeight = args.thumbnailHeight;
+    this.createThumbnails = args.createThumbnails;
 
-    this._timeouts = []
+    this._timeouts = [];
+
+    if (this.createThumbnails) {
+      this.pre('emitGif', function(next, filename) {
+        thumbnailer.createThumbnail(this, {'img': filename}, function() {
+        }.bind(this));
+        next();
+      });
+    }
 }
 
 Giffer.prototype.start = function() {
     this.adapters.forEach(function(adapter) {
-        if(!adapter.start) return
+        if (!adapter.start) return;
 
-        adapter.start()
-        adapter.on('gif', this.handleGif.bind(this))
+        adapter.start();
+        adapter.on('gif', this.handleGif.bind(this));
         adapter.on('stop', function() {
-            var timeout = setTimeout(adapter.start.bind(adapter), this.timeToRestart)
-            this._timeouts.push(timeout)
-        }.bind(this))
-    }.bind(this))
-}
+            var timeout = setTimeout(adapter.start.bind(adapter), this.timeToRestart);
+            this._timeouts.push(timeout);
+        }.bind(this));
+    }.bind(this));
+};
 
 Giffer.prototype.stop = function() {
     // stop adapters
     this.adapters.forEach(function(adapter) {
-        if(!adapter.stop) return
-        adapter.stop()
-    })
+        if (!adapter.stop) return;
+        adapter.stop();
+    });
 
     this._timeouts.forEach(function(timeout) {
-        clearTimout(timeout)
-    })
-}
+        clearTimout(timeout);
+    });
+};
 
 Giffer.prototype.handleGif = function(url) {
     this.urlDb.get(url, function(err, value) {
-        if(!err && value) return
+        if (!err && value) return;
 
-        var id = uuid.v1()
+        var id = uuid.v1();
         this.urlDb.put(url, {
             filename: id + '.gif',
             dir: this.outDir,
             time: new Date().getTime()
         }, function(err) {
-            if(err) throw err
-        })
+            if (err) throw err;
+        });
 
-        this.download(id, url)
-    }.bind(this))
-}
+        this.download(id, url);
+    }.bind(this));
+};
 
 Giffer.prototype.download = function(id, url) {
     downloader.download(url, this.outDir + '/' + id + '.gif', function() {
-        this.emitGif(id + '.gif')
-    }.bind(this))
-}
+        this.emitGif(id + '.gif');
+    }.bind(this));
+};
 
 Giffer.prototype.emitGif = function(filename) {
-    this.emit('gif', filename)
-}
+    this.emit('gif', filename);
+};
 
-module.exports = Giffer
+module.exports = Giffer;
