@@ -3,10 +3,20 @@ var sublevel = require('level-sublevel')
 var inherits = require('util').inherits
 var EventEmitter = require('events').EventEmitter
 var downloader = require('./downloader')
+var hooks = require('hooks')
 
 inherits(Giffer, EventEmitter)
 
 function Giffer(args) {
+    // Make hooks possible
+    for(var k in hooks) {
+        this[k] = hooks[k]
+    }
+
+    this.hook('download', this.download)
+    this.hook('handleGif', this.handleGif)
+    this.hook('emitGif', this.emitGif)
+
     this.timeToRestart = args.timeToRestart || 300000 // in ms
     this.adapters = []
     var db = sublevel(args.db) // value encoding must be json
@@ -36,7 +46,7 @@ Giffer.prototype.start = function() {
         if(!adapter.start) return
 
         adapter.start()
-        adapter.on('gif', this._handleGif.bind(this))
+        adapter.on('gif', this.handleGif.bind(this))
         adapter.on('stop', function() {
             var timeout = setTimeout(adapter.start.bind(adapter), this.timeToRestart)
             this._timeouts.push(timeout)
@@ -56,7 +66,7 @@ Giffer.prototype.stop = function() {
     })
 }
 
-Giffer.prototype._handleGif = function(url) {
+Giffer.prototype.handleGif = function(url) {
     this.urlDb.get(url, function(err, value) {
         if(!err && value) return
 
@@ -69,10 +79,18 @@ Giffer.prototype._handleGif = function(url) {
             if(err) throw err
         })
 
-        downloader.download(url, this.outDir + '/' + id + '.gif', function() {
-            this.emit('gif', id + '.gif')
-        }.bind(this))
+        this.download(id, url)
     }.bind(this))
+}
+
+Giffer.prototype.download = function(id, url) {
+    downloader.download(url, this.outDir + '/' + id + '.gif', function() {
+        this.emitGif(id + '.gif')
+    }.bind(this))
+}
+
+Giffer.prototype.emitGif = function(filename) {
+    this.emit('gif', filename)
 }
 
 module.exports = Giffer
