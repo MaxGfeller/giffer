@@ -74,26 +74,12 @@ Giffer.prototype._handleGif = function(url) {
         }, function(err) {
             if (err) throw err;
         });
-      this._download(url, id, function() {
-        this.emit('gif', id + '.gif');
-      });
+      downloader.download(url, this.outDir + '/' + id + '.gif', function(err) {
+        thumbnailer.createThumbnail(this, {'img':id + '.gif'}, function(err) {
+          this.emit('gif', id + '.gif');
+        }.bind(this));
+      }.bind(this));
     }.bind(this));
-};
-
-Giffer.prototype._download = function(url, id, callback) {
-  downloader.download(url, this.outDir + '/' + id + '.gif', function() {
-    if (this.createThumbnails) {
-      this._createThumbnail(id, function() {
-      });
-    }
-  }.bind(this));
-  return(callback);
-};
-
-Giffer.prototype._createThumbnail = function(id) {
-  thumbnailer.createThumbnail(this, {'img':id + '.gif'}, function(){
-
-  });
 };
 
 module.exports = Giffer;
