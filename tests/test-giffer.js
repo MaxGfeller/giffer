@@ -8,7 +8,7 @@ var db = levelup('/whatever', {
 })
 
 test('Test basic functionality of giffer', function(t) {
-    t.plan(4)
+    t.plan(5)
     var testAdapter = new TestAdapter()
 
     var giffer = new Giffer({
@@ -22,6 +22,10 @@ test('Test basic functionality of giffer', function(t) {
         next()
     })
     giffer.pre('download', function(next) {
+        t.ok(true)
+        next()
+    })
+    giffer.pre('saveMetaData', function(next) {
         t.ok(true)
         next()
     })

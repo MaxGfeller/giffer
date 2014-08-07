@@ -15,6 +15,7 @@ function Giffer(args) {
 
     this.hook('download', this.download)
     this.hook('handleGif', this.handleGif)
+    this.hook('saveMetaData', this.saveMetaData)
     this.hook('emitGif', this.emitGif)
 
     this.timeToRestart = args.timeToRestart || 300000 // in ms
