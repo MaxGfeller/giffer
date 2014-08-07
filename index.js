@@ -71,13 +71,6 @@ Giffer.prototype.handleGif = function(url) {
         if(!err && value) return
 
         var id = uuid.v1()
-        this.urlDb.put(url, {
-            filename: id + '.gif',
-            dir: this.outDir,
-            time: new Date().getTime()
-        }, function(err) {
-            if(err) throw err
-        })
 
         this.download(id, url)
     }.bind(this))
@@ -85,6 +78,18 @@ Giffer.prototype.handleGif = function(url) {
 
 Giffer.prototype.download = function(id, url) {
     downloader.download(url, this.outDir + '/' + id + '.gif', function() {
+        this.saveMetaData(url, id)
+    }.bind(this))
+}
+
+Giffer.prototype.saveMetaData = function(url, id) {
+    this.urlDb.put(url, {
+        filename: id + '.gif',
+        dir: this.outDir,
+        time: new Date().getTime()
+    }, function(err) {
+        if(err) throw err
+
         this.emitGif(id + '.gif')
     }.bind(this))
 }
