@@ -8,7 +8,7 @@ var db = levelup('/whatever', {
 })
 
 test('Test basic functionality of giffer', function(t) {
-    t.plan(5)
+    t.plan(7)
     var testAdapter = new TestAdapter()
 
     var giffer = new Giffer({
@@ -35,9 +35,11 @@ test('Test basic functionality of giffer', function(t) {
     })
 
     giffer.start()
-    giffer.on('gif', function(url) {
+    giffer.on('gif', function(url, metadata) {
         giffer.stop()
         t.ok(url)
+        t.ok(metadata)
+        t.ok(metadata.origin)
         t.end()
     })
 })

@@ -67,36 +67,38 @@ Giffer.prototype.stop = function() {
     })
 }
 
-Giffer.prototype.handleGif = function(url) {
+Giffer.prototype.handleGif = function(url, metadata) {
+    if(!metadata || !metadata.origin) return
     this.urlDb.get(url, function(err, value) {
         if(!err && value) return
 
         var id = uuid.v1()
 
-        this.download(id, url)
+        this.download(id, url, metadata)
     }.bind(this))
 }
 
-Giffer.prototype.download = function(id, url) {
+Giffer.prototype.download = function(id, url, metadata) {
     downloader.download(url, this.outDir + '/' + id + '.gif', function() {
-        this.saveMetaData(url, id)
+        this.saveMetaData(url, id, metadata)
     }.bind(this))
 }
 
-Giffer.prototype.saveMetaData = function(url, id) {
+Giffer.prototype.saveMetaData = function(url, id, metadata) {
     this.urlDb.put(url, {
         filename: id + '.gif',
         dir: this.outDir,
-        time: new Date().getTime()
+        time: new Date().getTime(),
+        meta: metadata
     }, function(err) {
         if(err) throw err
 
-        this.emitGif(id + '.gif')
+        this.emitGif(id + '.gif', metadata)
     }.bind(this))
 }
 
-Giffer.prototype.emitGif = function(filename) {
-    this.emit('gif', filename)
+Giffer.prototype.emitGif = function(filename, metadata) {
+    this.emit('gif', filename, metadata)
 }
 
 module.exports = Giffer
