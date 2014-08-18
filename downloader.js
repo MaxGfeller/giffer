@@ -28,6 +28,12 @@ Downloader.prototype._processNextItem = function() {
     var cb = obj.cb
 
     needle.get(url).pipe(fs.createWriteStream(path))
+        .on('error', function(e) {
+            console.error(e)
+            this.downloading = false
+            this._processNextItem()
+            return cb()
+        }.bind(this))
         .on('close', function() {
             this.downloading = false
             this._processNextItem()
