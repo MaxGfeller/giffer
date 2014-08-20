@@ -31,12 +31,10 @@ Downloader.prototype._processNextItem = function() {
         .on('error', function(e) {
             console.error(e)
             this.downloading = false
-            this._processNextItem()
             return cb()
         }.bind(this))
         .on('close', function() {
             this.downloading = false
-            this._processNextItem()
             return cb()
         }.bind(this))
 }

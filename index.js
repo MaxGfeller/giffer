@@ -99,6 +99,7 @@ Giffer.prototype.saveMetaData = function(url, id, metadata) {
 
 Giffer.prototype.emitGif = function(filename, metadata) {
     this.emit('gif', filename, metadata)
+    downloader._processNextItem()
 }
 
 module.exports = Giffer
