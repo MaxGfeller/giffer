@@ -67,6 +67,10 @@ Giffer.prototype.stop = function() {
     })
 }
 
+Giffer.prototype.plugin = function(plugin, opts) {
+	plugin(this, opts)
+}
+
 Giffer.prototype.handleGif = function(url, metadata) {
     if(!metadata || !metadata.origin) return
     this.urlDb.get(url, function(err, value) {
