@@ -2,15 +2,17 @@ var test = require('tap').test
 var levelup = require('levelup')
 var Giffer = require('../')
 var TestAdapter = require('./testadapter')
+var concat = require('concat-stream')
 
 var db = levelup('/whatever', {
-    db: require('memdown')
+    db: require('memdown'),
+    valueEncoding: 'json'
 })
 
 test('Test basic functionality of giffer', function(t) {
     var emits = 0
 
-    t.plan(21)
+    t.plan(22)
     var testAdapter = new TestAdapter()
 
     var giffer = new Giffer({
@@ -45,7 +47,13 @@ test('Test basic functionality of giffer', function(t) {
 
         if(emits < 3) return
 
-        giffer.stop()
-        t.end()
+        // test the stream
+        giffer.createSeqReadStream({
+          reverse: true
+        }).pipe(concat(function(data) {
+          t.ok(data.length == 2)
+          giffer.stop()
+          t.end()
+        }))
     })
 })
