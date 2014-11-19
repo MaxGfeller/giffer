@@ -4,6 +4,7 @@ var inherits = require('util').inherits
 var EventEmitter = require('events').EventEmitter
 var downloader = require('./downloader')
 var hooks = require('hooks')
+var through = require('through')
 
 inherits(Giffer, EventEmitter)
 
@@ -69,6 +70,22 @@ Giffer.prototype.stop = function() {
 
 Giffer.prototype.plugin = function(plugin, opts) {
 	plugin(this, opts)
+}
+
+Giffer.prototype.createSeqReadStream = function(opts) {
+  var self = this
+  var tr = through(function(v) {
+    self.urlDb.get(v.value, function(err, value) {
+      if(err) return this.emit('error', err)
+      this.queue({
+          key: v.key,
+          filename: value.filename,
+          metadata: value.meta
+      })
+    }.bind(this))
+  })
+  this.seqDb.createReadStream(opts).pipe(tr)
+  return tr
 }
 
 Giffer.prototype.handleGif = function(url, metadata) {
