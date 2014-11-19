@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/MaxGfeller/giffer",
   "devDependencies": {
+    "concat-stream": "^1.4.6",
     "memdown": "^0.10.2",
     "tap": "^0.4.11"
   },
