@@ -1,4 +1,4 @@
-var needle = require('needle')
+var hyperquest = require('hyperquest')
 var fs = require('fs')
 
 function Downloader() {
@@ -27,7 +27,7 @@ Downloader.prototype._processNextItem = function() {
     var path = obj.path
     var cb = obj.cb
 
-    needle.get(url).pipe(fs.createWriteStream(path))
+    hyperquest(url).pipe(fs.createWriteStream(path))
         .on('error', function(e) {
             console.error(e)
             this.downloading = false
