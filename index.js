@@ -28,6 +28,7 @@ function Giffer(args) {
 
     // create time based index
     this.urlDb.pre(function(ch, add) {
+        if (ch.type !== 'put') return
         add({
             key: '' + Date.now(),
             value: ch.key,
