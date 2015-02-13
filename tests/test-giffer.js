@@ -40,18 +40,17 @@ test('Test basic functionality of giffer', function(t) {
 
     giffer.start()
     giffer.on('gif', function(filename, metadata) {
-        emits++
         t.ok(filename)
         t.ok(metadata)
         t.ok(metadata.origin)
 
-        if(emits < 3) return
+        if (++emits < 3) return
 
         // test the stream
         giffer.createSeqReadStream({
           reverse: true
         }).pipe(concat(function(data) {
-          t.ok(data.length == 2)
+          t.ok(data.length == 3)
           giffer.stop()
           t.end()
         }))

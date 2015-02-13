@@ -28,19 +28,24 @@ function Giffer(args) {
 
     // create time based index
     this.urlDb.pre(function(ch, add) {
-        if (ch.type !== 'put') return
-        add({
-            key: '' + Date.now(),
-            value: ch.key,
-            type: 'put',
+        if (ch.type === 'put') {
+          add({
+              key: '' + ch.value.time,
+              value: ch.key,
+              type: 'put',
+              prefix: seqDb
+          })
+        } else if (ch.type === 'del') {
+          add({
+            key: ch.value.time,
+            type: 'del',
             prefix: seqDb
-        })
+          })
+        }
     })
 
     args.adapters.forEach(this.adapters.push.bind(this.adapters))
-
     this.outDir = args.outputDir
-
     this._timeouts = []
 }
 
@@ -76,16 +81,21 @@ Giffer.prototype.plugin = function(plugin, opts) {
 Giffer.prototype.createSeqReadStream = function(opts) {
   var self = this
   var tr = through(function(v) {
+    this.pause()
     self.urlDb.get(v.value, function(err, value) {
-      if(err) return this.emit('error', err)
-      this.queue({
+      if (err) return this.emit('error', err)
+      this.emit('data', {
           key: v.key,
           filename: value.filename,
           metadata: value.meta
       })
+      this.resume()
     }.bind(this))
   })
-  this.seqDb.createReadStream(opts).pipe(tr)
+
+  process.nextTick(function() {
+    this.seqDb.createReadStream(opts).pipe(tr)
+  }.bind(this))
   return tr
 }
 
@@ -110,7 +120,7 @@ Giffer.prototype.saveMetaData = function(url, id, metadata) {
     this.urlDb.put(url, {
         filename: id + '.gif',
         dir: this.outDir,
-        time: new Date().getTime(),
+        time: Date.now(),
         meta: metadata
     }, function(err) {
         if(err) throw err
