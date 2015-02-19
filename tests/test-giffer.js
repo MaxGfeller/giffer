@@ -56,3 +56,26 @@ test('Test basic functionality of giffer', function(t) {
         }))
     })
 })
+
+test('Correct deletion of entries', function(t) {
+  var giffer = new Giffer({
+    db: db,
+    outputDir: __dirname + '/temp',
+    adapters: []
+  })
+
+  giffer.seqDb.createReadStream({ limit: 1 }).pipe(concat(function(entries) {
+    var entry = entries.shift()
+    var k = entry.value
+
+    giffer.urlDb.del(k, function(err) {
+      t.notOk(err)
+      // check if entry from seqDb was deleted
+      giffer.seqDb.get(entry.key, function(err, obj) {
+        t.ok(err)
+        t.notOk(obj)
+        t.end()
+      })
+    })
+  }))
+})
