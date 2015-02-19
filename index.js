@@ -36,13 +36,12 @@ function Giffer(args) {
               prefix: seqDb
           })
         } else if (ch.type === 'del') {
-          add({
-            key: ch.value.time,
-            type: 'del',
-            prefix: seqDb
-          })
+          this.urlDb.get(ch.key, function(err, obj) {
+            if (err) throw err
+            this.seqDb.del(obj.time, noop)
+          }.bind(this))
         }
-    })
+    }.bind(this))
 
     args.adapters.forEach(this.adapters.push.bind(this.adapters))
     this.outDir = args.outputDir
@@ -135,3 +134,5 @@ Giffer.prototype.emitGif = function(filename, metadata) {
 }
 
 module.exports = Giffer
+
+function noop() {}
