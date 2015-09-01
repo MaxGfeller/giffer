@@ -5,6 +5,7 @@ var EventEmitter = require('events').EventEmitter
 var downloader = require('./downloader')
 var hooks = require('hooks')
 var through = require('through')
+var fs = require('fs')
 
 inherits(Giffer, EventEmitter)
 
@@ -37,6 +38,7 @@ function Giffer(args) {
           })
         } else if (ch.type === 'del') {
           this.urlDb.get(ch.key, function(err, obj) {
+            fs.unlink(this.outDir + '/' + obj.filename, noop)
             if (err) throw err
             this.seqDb.del(obj.time, noop)
           }.bind(this))
