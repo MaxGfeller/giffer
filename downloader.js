@@ -27,18 +27,24 @@ Downloader.prototype._processNextItem = function() {
   var path = obj.path
   var cb = obj.cb
 
-  hyperquest(url).pipe(fs.createWriteStream(path))
-    .on('error', function(e) {
-      console.error(e)
-      this.downloading = false
-      this._processNextItem()
-      return cb()
-    }.bind(this))
-    .on('close', function() {
-      this.downloading = false
-      this._processNextItem()
-      return cb()
-    }.bind(this))
+  try {
+    hyperquest(url).pipe(fs.createWriteStream(path))
+      .on('error', function(e) {
+        console.error(e)
+        this.downloading = false
+        this._processNextItem()
+        return cb()
+      }.bind(this))
+      .on('close', function() {
+        this.downloading = false
+        this._processNextItem()
+        return cb()
+      }.bind(this))
+  } catch (e) {
+    this.downloading = false
+    this._processNextItem()
+    return cb()
+  }
 }
 
 var instance = new Downloader()
