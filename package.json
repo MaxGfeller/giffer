@@ -30,9 +30,9 @@
   },
   "dependencies": {
     "hooks": "^0.3.2",
-    "hyperquest": "^1.0.1",
     "level-sublevel": "^6.2.2",
     "levelup": "^0.18.5",
+    "request": "^2.69.0",
     "through": "^2.3.6",
     "uuid": "^1.4.1"
   }

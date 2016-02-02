@@ -1,4 +1,4 @@
-var hyperquest = require('hyperquest')
+var request = require('request')
 var fs = require('fs')
 
 function Downloader() {
@@ -28,18 +28,19 @@ Downloader.prototype._processNextItem = function() {
   var cb = obj.cb
 
   try {
-    hyperquest(url).pipe(fs.createWriteStream(path))
-      .on('error', function(e) {
-        console.error(e)
-        this.downloading = false
-        this._processNextItem()
-        return cb()
-      }.bind(this))
-      .on('close', function() {
-        this.downloading = false
-        this._processNextItem()
-        return cb()
-      }.bind(this))
+    var self = this
+    request.get(url).on('error', function () {
+      console.error(e)
+      self.downloading = false
+      self._processNextItem()
+      return cb()
+    })
+    .pipe(fs.createWriteStream(path))
+    .on('finish', function () {
+      self.downloading = false
+      self._processNextItem()
+      return cb()
+    })
   } catch (e) {
     this.downloading = false
     this._processNextItem()
