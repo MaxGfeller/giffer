@@ -1,4 +1,4 @@
-var test = require('tap').test
+var test = require('tape')
 var levelup = require('levelup')
 var Giffer = require('../')
 var TestAdapter = require('./testadapter')
@@ -12,7 +12,6 @@ var db = levelup('/whatever', {
 test('Test basic functionality of giffer', function(t) {
   var emits = 0
 
-  t.plan(22)
   var testAdapter = new TestAdapter()
 
   var giffer = new Giffer({

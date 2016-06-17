@@ -4,7 +4,7 @@
   "description": "GIF download bot",
   "main": "index.js",
   "scripts": {
-    "test": "npm run clear-test; tap tests/test-*.js",
+    "test": "npm run clear-test; node tests/test-*.js",
     "clear-test": "rm -rf tests/temp/*"
   },
   "repository": {
@@ -26,7 +26,7 @@
   "devDependencies": {
     "concat-stream": "^1.4.6",
     "memdown": "^0.10.2",
-    "tap": "^0.4.11"
+    "tape": "^4.5.1"
   },
   "dependencies": {
     "hooks": "^0.3.2",
