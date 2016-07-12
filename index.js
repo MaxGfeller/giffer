@@ -38,8 +38,8 @@ function Giffer(args) {
       })
     } else if (ch.type === 'del') {
       this.urlDb.get(ch.key, function(err, obj) {
-        fs.unlink(this.outDir + '/' + obj.filename, noop)
         if (err) throw err
+        if (obj && obj.filename) fs.unlink(this.outDir + '/' + obj.filename, noop)
         this.seqDb.del(obj.time, noop)
       }.bind(this))
     }
