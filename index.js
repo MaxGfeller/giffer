@@ -38,7 +38,7 @@ function Giffer(args) {
       })
     } else if (ch.type === 'del') {
       this.urlDb.get(ch.key, function(err, obj) {
-        if (err) throw err
+        if (err) return console.error(err)
         if (obj && obj.filename) fs.unlink(this.outDir + '/' + obj.filename, noop)
         this.seqDb.del(obj.time, noop)
       }.bind(this))
